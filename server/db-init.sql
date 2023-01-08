@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS `violated_drone` (
   drone_serial_no VARCHAR(50) NOT NULL,
   drone_positionX NUMERIC(20,12) NOT NULL,
   drone_positionY NUMERIC(20,12) NOT NULL,
-  distance_to_net NUMERIC(20,12) NOT NULL,
+  distance_to_nest NUMERIC(20,12) NOT NULL,
   pilot_firstName VARCHAR(50) NOT NULL, 
   pilot_lastName VARCHAR(50) NOT NULL,
   pilot_phone VARCHAR(50),
