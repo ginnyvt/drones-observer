@@ -5,6 +5,7 @@ import cron from "node-cron";
 import cors from "cors";
 import "reflect-metadata";
 
+import pilotRoutes from "./routes/pilot.route.js";
 import { fetchDrones } from "./jobs/fetchDrones.js";
 import { transformDronesData } from "./jobs/transformDronesData.js";
 import { flattenObject } from "./utils/flattenObject.js";
@@ -22,6 +23,8 @@ app.use(express.urlencoded({ extended: false }));
 app.get("/", (req, res) => {
 	res.send("Hello from express server!");
 });
+
+app.use("/api", pilotRoutes);
 
 const connection = dataSource
 	.initialize()
