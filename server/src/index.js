@@ -5,10 +5,11 @@ import cron from "node-cron";
 import cors from "cors";
 import "reflect-metadata";
 
-import pilotRoutes from "./routes/pilot.route.js";
-import { fetchDrones } from "./jobs/fetchDrones.js";
-import { transformDronesData } from "./jobs/transformDronesData.js";
-import { flattenObject } from "./utils/flattenObject.js";
+import droneRoutes from "./routes/drone.route.js";
+import { fetchDrones } from "./jobs/fetchDronesData.js";
+import { assignPilotInfo } from "./jobs/assignPilotInfo.js";
+import { processDronesData } from "./jobs/processDronesData.js";
+
 import { dataSource } from "./utils/datasource.js";
 import { ViolatedDrone } from "./models/ViolatedDrone.js";
 
@@ -24,65 +25,72 @@ app.get("/", (req, res) => {
 	res.send("Hello from express server!");
 });
 
-app.use("/api", pilotRoutes);
+app.use("/api", droneRoutes);
 
-const connection = dataSource
-	.initialize()
-	.then(() => {
-		console.log("Connection established.");
-	})
-	.catch((err) => {
-		console.log(err);
-		throw new Error("Connection error.");
+(async () => {
+	// connect db
+	try {
+		await dataSource.initialize();
+	} catch (err) {
+		throw err;
+	}
+
+	// start application
+	app.listen(PORT, () => {
+		console.log("application listening at port: " + PORT);
 	});
 
-cron.schedule("*/2 * * * * *", async function () {
-	const fetchedDrones = await fetchDrones(DRONES_DATA_URL);
-	let violatedDrones = await transformDronesData(fetchedDrones);
+	// cron jobs
+	cron.schedule("*/2 * * * * *", async function () {
+		console.time("Fetching");
+		try {
+			// fetch drones data
+			const dronesData = await fetchDrones(DRONES_DATA_URL);
 
-	violatedDrones = violatedDrones.filter((d) => d.pilot !== null);
-
-	if (violatedDrones.length > 0) {
-		violatedDrones.forEach(async (d) => {
-			const {
-				snappedAt,
-				serialNumber,
-				positionX,
-				positionY,
-				distanceToTheNest,
-				pilot_firstName,
-				pilot_lastName,
-				pilot_phoneNumber,
-				pilot_email,
-			} = flattenObject(d);
-			const droneData = new ViolatedDrone(
-				snappedAt,
-				serialNumber,
-				positionX,
-				positionY,
-				distanceToTheNest,
-				pilot_firstName,
-				pilot_lastName,
-				pilot_phoneNumber,
-				pilot_email
-			);
-			connection.then(() => {
-				const repo = dataSource.getRepository("ViolatedDrone");
-				repo
-					.save(droneData)
-					.then(() => {
-						console.log("Inserted data successful.");
-					})
-					.catch((err) => {
-						console.log(err);
-						throw new Error("Inserted data error.");
-					});
+			// process drones data
+			let violatedDrones = await processDronesData(dronesData);
+			// assigned pilot info
+			violatedDrones = await assignPilotInfo(violatedDrones);
+			// insert violated drones data to db
+			violatedDrones = violatedDrones.map((d) => {
+				const droneData = new ViolatedDrone();
+				droneData.drone_serial_no = d.droneSerialNumber;
+				droneData.snapped_at = d.snappedAt;
+				droneData.drone_positionX = d.dronePositionX;
+				droneData.drone_positionY = d.dronePositionY;
+				droneData.distance_to_nest = d.distanceToTheNest;
+				droneData.pilot_firstName = d.pilotFName;
+				droneData.pilot_lastName = d.pilotLName;
+				droneData.pilot_phone = d.pilotPhone;
+				droneData.pilot_email = d.pilotEmail;
+				return droneData;
 			});
-		});
-	}
-	console.log("running a task every 2 seconds");
-});
 
-app.listen(PORT, () => {
-	console.log("application listening at port: " + PORT);
-});
+			const repo = dataSource.getRepository("ViolatedDrone");
+			try {
+				if (violatedDrones.length > 0) {
+					await repo.save(violatedDrones);
+					console.info("Inserted :" + violatedDrones.length);
+				}
+			} catch (err) {
+				console.log(err);
+			}
+		} catch (err) {
+			console.error(err);
+		}
+		console.timeEnd("Fetching");
+	});
+
+	cron.schedule("*/1 * * * *", async function () {
+		console.time("Deleting");
+		try {
+			await dataSource.query(`
+			DELETE FROM violated_drone
+			WHERE snapped_at < NOW() - INTERVAL 2 MINUTE`);
+			console.log("Delete drones data after 1 minutes");
+		} catch (err) {
+			console.log(err);
+		}
+		console.timeEnd("Deleting");
+	});
+})();

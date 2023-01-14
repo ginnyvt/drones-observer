@@ -1,10 +1,10 @@
 import axios from "axios";
 
-export const fetchPilotInfo = async (url, droneSerialNo) => {
+export const fetchDrones = async (url) => {
 	try {
 		const { data } = await axios({
+			url: url,
 			method: "GET",
-			url: `${url}/${droneSerialNo}`,
 		});
 		return data;
 	} catch (err) {
