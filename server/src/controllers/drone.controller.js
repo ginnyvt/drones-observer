@@ -10,6 +10,7 @@ export const getViolatedDrones = async (req, res) => {
 	AND vd2.min_distance = vd1.distance_to_nest
 	WHERE snapped_at >= NOW() - INTERVAL 10 MINUTE;
 	`);
+
 	res.status(200).json({
 		message: "Retrieve data successfully.",
 		violatedDrones,
