@@ -81,13 +81,13 @@ app.use("/api", droneRoutes);
 		console.timeEnd("Fetching");
 	});
 
-	cron.schedule("*/1 * * * *", async function () {
+	cron.schedule("*/5 * * * *", async function () {
 		console.time("Deleting");
 		try {
 			await dataSource.query(`
 			DELETE FROM violated_drone
-			WHERE snapped_at < NOW() - INTERVAL 2 MINUTE`);
-			console.log("Delete drones data after 1 minutes");
+			WHERE snapped_at < NOW() - INTERVAL 10 MINUTE`);
+			console.log("Delete drones data after 5 minutes");
 		} catch (err) {
 			console.log(err);
 		}

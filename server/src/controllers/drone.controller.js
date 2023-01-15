@@ -8,12 +8,12 @@ export const getViolatedDrones = async (req, res) => {
 	GROUP BY drone_serial_no
 	) AS vd2 ON vd2.drone_serial_no = vd1.drone_serial_no
 	AND vd2.min_distance = vd1.distance_to_nest
-	WHERE snapped_at >= NOW() - INTERVAL 1 MINUTE;
+	WHERE snapped_at >= NOW() - INTERVAL 10 MINUTE;
 	`);
 
 	res.status(200).json({
-		message: "Retrieve data successfully",
-		data: violatedDrones,
+		message: "Retrieve data successfully.",
+		violatedDrones,
 	});
 };
 
