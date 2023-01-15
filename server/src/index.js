@@ -81,6 +81,7 @@ app.use("/api", droneRoutes);
 		console.timeEnd("Fetching");
 	});
 
+
 	cron.schedule("*/5 * * * *", async function () {
 		console.time("Deleting");
 		try {
