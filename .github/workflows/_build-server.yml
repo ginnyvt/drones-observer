@@ -29,6 +29,6 @@ jobs:
       context: ./server
       platforms: linux/arm64,linux/amd64
       push: true
-      tags: ghcr.io/${{github.repository}}:main
+      tags: ghcr.io/${{github.repository}}:server
       cache-from: type=gha
       cache-to: type=gha,mode=max

@@ -19,4 +19,4 @@ jobs:
 
    - name: Deploy to the Kubernetes cluster
      run: |
-      ${{ steps.install-kubectl.outputs.kubectl-path }} rollout restart deploy drones-monitor-depl -n drones/ginnyvt
+      ${{ steps.install-kubectl.outputs.kubectl-path }} rollout restart deploy drones-monitor-depl -n drones-ginnyvt
