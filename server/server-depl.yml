@@ -14,7 +14,7 @@ spec:
   spec:
    containers:
     - name: drones-monitor
-      image: ginnyvt/drones-server:1.0.0
+      image: ghcr.io/ginnyvt/drones-observer:server
       envFrom:
        - secretRef:
           name: backend-env

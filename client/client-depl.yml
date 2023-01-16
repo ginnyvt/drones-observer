@@ -14,7 +14,7 @@ spec:
   spec:
    containers:
     - name: drones-client
-      image: ginnyvt/drones-client:1.0.2
+      image: ghcr.io/ginnyvt/drones-observer:client
       resources:
        requests:
         memory: "128Mi"
