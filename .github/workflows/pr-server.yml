@@ -1,0 +1,17 @@
+name: CI Pull Request
+
+on:
+ pull_request:
+  branches: [main]
+  paths-ignore:
+   - "**/README.md"
+   - "database/**"
+   - "client/**"
+
+jobs:
+ build:
+  uses: ./.github/workflows/_build-server.yml
+ deploy:
+  needs: build
+  uses: ./.github/workflows/_deploy-server.yml
+  secrets: inherit
