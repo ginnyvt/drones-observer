@@ -1,0 +1,17 @@
+name: CI
+
+on:
+ push:
+  branches: [main]
+  paths-ignore:
+   - "**/README.md"
+   - "database/**"
+   - "server/**"
+
+jobs:
+ build:
+  uses: ./.github/workflows/_build-client.yml
+ deploy:
+  needs: build
+  uses: ./.github/workflows/_deploy-client.yml
+  secrets: inherit

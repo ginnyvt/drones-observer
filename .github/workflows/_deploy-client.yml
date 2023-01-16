@@ -1,0 +1,22 @@
+name: Deploy
+
+on:
+ workflow_call:
+
+jobs:
+ k8s:
+  runs-on: ubuntu-latest
+  steps:
+   - name: Install kubectl
+     uses: azure/setup-kubectl@v3
+     id: install-kubectl
+
+   - name: Set the Kubernetes context
+     uses: azure/k8s-set-context@v3
+     with:
+      method: kubeconfig
+      kubeconfig: ${{secrets.KUBE_CONFIG}}
+
+   - name: Deploy to the Kubernetes cluster
+     run: |
+      ${{ steps.install-kubectl.outputs.kubectl-path }} rollout restart deploy drones-client-depl -n drones-ginnyvt
