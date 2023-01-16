@@ -8,7 +8,7 @@ export const dronesTableHeaders = [
 		value: "name",
 	},
 	{
-		label: "Distance to nest",
+		label: "Distance to nest (meters)",
 		value: "distance",
 	},
 	{

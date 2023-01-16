@@ -3,9 +3,11 @@ import _ from "lodash";
 
 function Table({ tableRows, tableHeaders }) {
 	const transformedTableRows = tableRows.map((item, index) => {
+		const distance_to_nest_in_meters = item.distance_to_nest / 1000;
 		const last_seen = moment(item.snapped_at).utc().fromNow();
 		return {
 			...item,
+			distance_to_nest: distance_to_nest_in_meters,
 			last_seen,
 			id: index + 1,
 		};
@@ -26,7 +28,7 @@ function Table({ tableRows, tableHeaders }) {
 							<tr key={r.drone_serial_no}>
 								<th>{r.id}</th>
 								<td>{`${r.pilot_firstName} ${r.pilot_lastName}`}</td>
-								<td>{_.round(r.distance_to_nest, 4)}</td>
+								<td>{_.round(r.distance_to_nest, 2)}</td>
 								<td>{r.pilot_email}</td>
 								<td>{r.pilot_phone}</td>
 								<td>{r.last_seen}</td>
